@@ -1,0 +1,120 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+  contactProperties [
+    ContactProperties {
+      material1 "node"
+      material2 "floor"
+      coulombFriction [
+        100
+      ]
+      forceDependentSlip []
+    }
+    ContactProperties {
+      material1 "node"
+      material2 "node"
+      coulombFriction [
+        100
+      ]
+      forceDependentSlip []
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.2144726307800809 -0.9335473535177956 -0.28721216789368603 1.854936820953751
+  position -0.9551470324151691 0.514697543216185 -0.27740952378558764
+}
+Background {
+  skyColor [
+    0.15 0.45 1
+  ]
+}
+RectangleArena {
+  translation 0 -0.1 0
+  contactMaterial "floor"
+}
+Robot {
+  translation 0 -0.0205173145311848 -0.19469270873212274
+  rotation 1 0 0 0.0014554384121344274
+  children [
+    DEF BODY Shape {
+      appearance PBRAppearance {
+      }
+      geometry Cylinder {
+        height 0.1
+        radius 0.01
+      }
+    }
+    HingeJoint {
+      jointParameters DEF S_JOINT HingeJointParameters {
+        position -6.49599782848487
+        anchor 0 -0.05 0
+      }
+      device [
+        RotationalMotor {
+          name "M1"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -0.050014870877530544 9.50676289026328e-06
+        rotation 1 0 0 6.078901430724288
+        children [
+          DEF S1 Shape {
+            appearance DEF def_app PBRAppearance {
+              roughness 1
+              metalness 0
+            }
+            geometry Sphere {
+              radius 0.03
+              subdivision 3
+            }
+          }
+        ]
+        contactMaterial "node"
+        boundingObject USE S1
+        physics DEF S_PHY Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position -8.903569348461815e-08
+      }
+      device [
+        RotationalMotor {
+          name "M2"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.049999999999999815 -3.5985655344461442e-09
+        rotation -1 0 0 8.940696716308595e-08
+        children [
+          USE S1
+        ]
+        name "solid(1)"
+        contactMaterial "node"
+        boundingObject USE S1
+        physics USE S_PHY
+      }
+    }
+  ]
+  boundingObject Group {
+    children [
+      Transform {
+        translation 0 0.05 0
+        children [
+          USE S1
+        ]
+      }
+      USE BODY
+      Transform {
+        translation 0 -0.05 0
+        children [
+          USE S1
+        ]
+      }
+    ]
+  }
+  physics USE S_PHY
+  controller "robot_proto"
+}

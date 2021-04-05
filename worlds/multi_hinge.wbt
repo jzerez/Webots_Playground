@@ -1,0 +1,61 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.4712520712589445 -0.8506764873951682 -0.23296136831494824 0.9537859381718763
+  position -0.6597078273635287 0.430621782771508 0.6791022202285657
+}
+Background {
+  skyColor [
+    0.15 0.45 1
+  ]
+}
+RectangleArena {
+}
+Robot {
+  translation 6.306649293853861e-19 0.0049681195119165664 2.164170402126143e-18
+  rotation -0.1772769995514916 0.05442905858842667 0.9826547425272002 -1.0072229124658654e-16
+  children [
+    Solid {
+      translation -6.152489705613024e-19 -2.9775236750282687e-05 -1.9504644810886974e-18
+      rotation 8.25091372801376e-17 0.008197926374654519 -0.9999663964369782 1.5236528645485264e-16
+      children [
+        DEF vertibrae Shape {
+          appearance DEF def_app PBRAppearance {
+            roughness 1
+          }
+          geometry Cylinder {
+            height 0.01
+            radius 0.05
+          }
+        }
+      ]
+      boundingObject USE vertibrae
+      physics DEF v_phy Physics {
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        anchor 0 0.025 0
+      }
+      device [
+        DEF m1 RotationalMotor {
+          name "m1"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.05 0
+        rotation 1 0 0 0
+        children [
+          USE vertibrae
+        ]
+        name "solid(1)"
+        boundingObject USE vertibrae
+        physics USE v_phy
+      }
+    }
+  ]
+  boundingObject USE vertibrae
+  physics USE v_phy
+}

@@ -1,0 +1,93 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+  contactProperties [
+    ContactProperties {
+      material2 "dumbell"
+    }
+  ]
+}
+Viewpoint {
+  orientation 0.5221150588376275 0.8401189232365264 0.14695598033043805 4.521934913368773
+  position -0.81363811106091 0.8084862700563701 -0.009187527041630394
+  exposure 3
+}
+TexturedBackground {
+}
+RectangleArena {
+  floorTileSize 0.25 0.25
+}
+WoodenBox {
+  size 0.1 0.1 0.1
+}
+E-puck {
+  hidden position_0_0 9.999999999751745
+  hidden position_0_1 9.999999999755268
+  hidden rotation_1 1 0 0 2.5663706146074277
+  hidden rotation_2 1 0 0 2.566370614603905
+  translation 3.142465979985737e-06 -6.395644878113248e-05 -0.20065869874373057
+  rotation -0.9994743862732124 0.03204450595765473 0.0049092587745224 -0.0010149286599593441
+  controller "epuck_go_forward"
+}
+Solid {
+  translation 0 0.2 -0.2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BALL_GEO Sphere {
+        radius 0.04
+      }
+    }
+  ]
+  boundingObject USE BALL_GEO
+  physics Physics {
+  }
+}
+DEF flippy Solid {
+  translation 0 0.1 0
+  children [
+    DEF Go Group {
+      children [
+        Transform {
+          translation 0 -0.05 0
+          children [
+            DEF weight Shape {
+              appearance PBRAppearance {
+                roughness 1
+                metalness 0
+              }
+              geometry Sphere {
+                radius 0.03
+              }
+            }
+          ]
+        }
+        Transform {
+          translation 0 0.05 0
+          children [
+            USE weight
+          ]
+        }
+        DEF handle Shape {
+          appearance PBRAppearance {
+            roughness 1
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.1
+            radius 0.01
+            subdivision 20
+          }
+        }
+      ]
+    }
+  ]
+  name "dumbell"
+  contactMaterial "dumbell"
+  boundingObject USE Go
+  physics Physics {
+  }
+}

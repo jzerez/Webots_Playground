@@ -1,0 +1,111 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  info [
+    ""
+    ""
+  ]
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.49029419269232605 0.7915404757102215 0.3647948463515031 0.8989752763530414
+  position 0.8558089279053664 0.719218263880571 0.8659377055598174
+}
+Background {
+  skyColor [
+    0.7 0.7 0.7
+    0 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+  ]
+}
+DEF FLOOR RectangleArena {
+}
+DEF FLIPPY Robot {
+  translation 0.3 0.08 0
+  rotation 1 0 0 0.4
+  children [
+    Solid {
+      children [
+        DEF BODY Shape {
+          appearance DEF RED PBRAppearance {
+            baseColor 1 0.2 0.2
+            roughness 1
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.1
+            radius 0.01
+          }
+        }
+      ]
+      name "solid(2)"
+      boundingObject USE BODY
+      physics Physics {
+      }
+    }
+    HingeJoint {
+      jointParameters DEF HINGE_PARAMS HingeJointParameters {
+        anchor 0 0.05 0
+      }
+      device [
+        RotationalMotor {
+          name "M1"
+        }
+      ]
+      endPoint DEF SPHERE1 Solid {
+        translation 0 0.05 0
+        rotation 1 0 0 0
+        children [
+          DEF S1 Shape {
+            appearance DEF GREEN PBRAppearance {
+              baseColor 0.2 1 0.2
+              roughness 1
+              metalness 0
+            }
+            geometry Sphere {
+              radius 0.03
+            }
+          }
+          DEF BUMPER TouchSensor {
+            name "T1"
+            boundingObject USE S1
+            physics DEF BUMP_PHYSICS Physics {
+            }
+          }
+        ]
+        boundingObject USE S1
+        physics DEF S_PHYSICS Physics {
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        anchor 0 -0.05 0
+      }
+      device [
+        RotationalMotor {
+          name "M2"
+        }
+      ]
+      endPoint DEF SPHERE2 Solid {
+        translation 0 -0.05 0
+        rotation 1 0 0 0
+        children [
+          USE S1
+          TouchSensor {
+            name "T2"
+            boundingObject USE S1
+            physics USE BUMP_PHYSICS
+          }
+        ]
+        name "solid(1)"
+        boundingObject USE S1
+        physics USE S_PHYSICS
+      }
+    }
+  ]
+  boundingObject USE S1
+  physics USE S_PHYSICS
+  controller "flippy_controller"
+}
