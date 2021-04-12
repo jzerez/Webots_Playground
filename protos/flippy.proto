@@ -1,6 +1,7 @@
 PROTO flippy [
   field SFVec3f    translation  0 0 0
   field SFRotation rotation     0 1 0 0
+  field MFString   controllerArgs "0"
 ]
 {
   Robot {
@@ -64,9 +65,21 @@ PROTO flippy [
               type "active"
               isLocked TRUE
               autoLock TRUE
-              distanceTolerance 1
+              distanceTolerance 10
               axisTolerance 3.141592653589793
               rotationTolerance 3.141592653589793
+              numberOfRotations 0
+              snap FALSE
+            }
+            Connector {
+              name "s1_sym_connector"
+              model "inter_flippy"
+              boundingObject USE S1
+              physics USE BUMP_PHYSICS
+              autoLock TRUE
+              distanceTolerance 0.05
+              axisTolerance 3.14
+              rotationTolerance 3.14
               numberOfRotations 0
               snap FALSE
             }
@@ -97,7 +110,7 @@ PROTO flippy [
               translationStep 0.1
               type "active"
               autoLock TRUE
-              distanceTolerance 0.3
+              distanceTolerance 10
               axisTolerance 3.14
               rotationTolerance 3.14
               numberOfRotations 0
@@ -109,6 +122,18 @@ PROTO flippy [
               boundingObject USE S1
               physics USE BUMP_PHYSICS
             }
+            Connector {
+              name "s2_sym_connector"
+              model "inter_flippy"
+              boundingObject USE S1
+              physics USE BUMP_PHYSICS
+              autoLock TRUE
+              distanceTolerance 0.05
+              axisTolerance 3.14
+              rotationTolerance 3.14
+              numberOfRotations 0
+              snap FALSE
+            }
           ]
           name "solid(1)"
           boundingObject USE S1
@@ -119,5 +144,6 @@ PROTO flippy [
     boundingObject USE S1
     physics USE S_PHYSICS
     controller "flippy_controller"
+    controllerArgs IS controllerArgs
   }
 }
