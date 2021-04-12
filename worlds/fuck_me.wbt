@@ -7,8 +7,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.49029419269232605 0.7915404757102215 0.3647948463515031 0.8989752763530414
-  position 0.8558089279053664 0.719218263880571 0.8659377055598174
+  orientation -0.25491092061367343 0.8447266413908578 0.4705925242462005 1.0202829372566962
+  position 0.7482470163251665 0.33308912891080494 0.584679588704346
 }
 Background {
   skyColor [
@@ -21,8 +21,32 @@ Background {
 }
 DEF FLOOR RectangleArena {
 }
+DEF real_floor Solid {
+  children [
+    DEF floor_shape Shape {
+      geometry Box {
+        size 1 0.01 1
+      }
+    }
+    DEF floor_connector Connector {
+      name "floor_connector"
+      model "flippy_stick"
+      boundingObject USE floor_shape
+      physics Physics {
+      }
+      type "passive"
+      autoLock TRUE
+      distanceTolerance 1
+      axisTolerance 3.14
+      rotationTolerance 3.141592653589793
+      numberOfRotations 0
+      snap FALSE
+    }
+  ]
+  boundingObject USE floor_shape
+}
 DEF FLIPPY Robot {
-  translation 0.3 0.08 0
+  translation 0 0.08 0
   rotation 1 0 0 0.4
   children [
     Solid {
@@ -73,6 +97,21 @@ DEF FLIPPY Robot {
             physics DEF BUMP_PHYSICS Physics {
             }
           }
+          DEF sphere_connector Connector {
+            name "s1_connector"
+            model "flippy_stick"
+            boundingObject USE S1
+            physics USE BUMP_PHYSICS
+            locked TRUE
+            type "active"
+            isLocked TRUE
+            autoLock TRUE
+            distanceTolerance 0.1
+            axisTolerance 3.141592653589793
+            rotationTolerance 3.141592653589793
+            numberOfRotations 0
+            snap FALSE
+          }
         ]
         boundingObject USE S1
         physics DEF S_PHYSICS Physics {
@@ -92,6 +131,20 @@ DEF FLIPPY Robot {
         translation 0 -0.05 0
         rotation 1 0 0 0
         children [
+          Connector {
+            name "s2_connector"
+            model "flippy_stick"
+            boundingObject USE S1
+            physics USE BUMP_PHYSICS
+            translationStep 0.1
+            type "active"
+            autoLock TRUE
+            distanceTolerance 1
+            axisTolerance 3.14
+            rotationTolerance 3.14
+            numberOfRotations 0
+            snap FALSE
+          }
           USE S1
           TouchSensor {
             name "T2"
