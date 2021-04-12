@@ -7,8 +7,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.25491092061367343 0.8447266413908578 0.4705925242462005 1.0202829372566962
-  position 0.7482470163251665 0.33308912891080494 0.584679588704346
+  orientation -0.32264472954720397 0.9347617244697801 0.14873095495455643 0.6949397486757616
+  position 0.5395278353208397 0.25753122291571323 0.6078323934889472
 }
 Background {
   skyColor [
@@ -78,8 +78,8 @@ DEF FLIPPY Robot {
         }
       ]
       endPoint DEF SPHERE1 Solid {
-        translation 0 0.05 0
-        rotation 1 0 0 0
+        translation 0 0.04991302955174124 3.701909857734546e-05
+        rotation -1 0 0 0.0005667977202639379
         children [
           DEF S1 Shape {
             appearance DEF GREEN PBRAppearance {
@@ -97,7 +97,7 @@ DEF FLIPPY Robot {
             physics DEF BUMP_PHYSICS Physics {
             }
           }
-          DEF sphere_connector Connector {
+          DEF active_connector Connector {
             name "s1_connector"
             model "flippy_stick"
             boundingObject USE S1
@@ -109,6 +109,17 @@ DEF FLIPPY Robot {
             distanceTolerance 1
             axisTolerance 3.141592653589793
             rotationTolerance 3.141592653589793
+            numberOfRotations 0
+            snap FALSE
+          }
+          Connector {
+            name "s1_sym_connector"
+            model "inter_flippy"
+            boundingObject USE S1
+            physics USE BUMP_PHYSICS
+            autoLock TRUE
+            axisTolerance 3.14
+            rotationTolerance 3.14
             numberOfRotations 0
             snap FALSE
           }
@@ -128,8 +139,8 @@ DEF FLIPPY Robot {
         }
       ]
       endPoint DEF SPHERE2 Solid {
-        translation 0 -0.05 0
-        rotation 1 0 0 0
+        translation 0 -0.05034385278663667 -0.00015123474696968406
+        rotation -1 0 0 0.0005051759577530935
         children [
           Connector {
             name "s2_connector"
@@ -151,6 +162,17 @@ DEF FLIPPY Robot {
             boundingObject USE S1
             physics USE BUMP_PHYSICS
           }
+          Connector {
+            name "s2_sym_connector"
+            model "inter_flippy"
+            boundingObject USE S1
+            physics USE BUMP_PHYSICS
+            autoLock TRUE
+            axisTolerance 3.14
+            rotationTolerance 3.14
+            numberOfRotations 0
+            snap FALSE
+          }
         ]
         name "solid(1)"
         boundingObject USE S1
@@ -161,4 +183,7 @@ DEF FLIPPY Robot {
   boundingObject USE S1
   physics USE S_PHYSICS
   controller "flippy_controller"
+  controllerArgs [
+    "1"
+  ]
 }

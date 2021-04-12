@@ -1,0 +1,123 @@
+PROTO flippy [
+  field SFVec3f    translation  0 0 0
+  field SFRotation rotation     0 1 0 0
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    children [
+      Solid {
+        children [
+          DEF BODY Shape {
+            appearance DEF RED PBRAppearance {
+              baseColor 1 0.2 0.2
+              roughness 1
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.1
+              radius 0.01
+            }
+          }
+        ]
+        name "solid(2)"
+        boundingObject USE BODY
+        physics Physics {
+        }
+      }
+      HingeJoint {
+        jointParameters DEF HINGE_PARAMS HingeJointParameters {
+          anchor 0 0.05 0
+        }
+        device [
+          RotationalMotor {
+            name "M1"
+          }
+        ]
+        endPoint DEF SPHERE1 Solid {
+          translation 0 0.04991302955174124 3.701909857734546e-05
+          rotation -1 0 0 0.0005667977202639379
+          children [
+            DEF S1 Shape {
+              appearance DEF GREEN PBRAppearance {
+                baseColor 0.2 1 0.2
+                roughness 1
+                metalness 0
+              }
+              geometry Sphere {
+                radius 0.03
+              }
+            }
+            DEF BUMPER TouchSensor {
+              name "T1"
+              boundingObject USE S1
+              physics DEF BUMP_PHYSICS Physics {
+              }
+            }
+            DEF sphere_connector Connector {
+              name "s1_connector"
+              model "flippy_stick"
+              boundingObject USE S1
+              physics USE BUMP_PHYSICS
+              locked TRUE
+              type "active"
+              isLocked TRUE
+              autoLock TRUE
+              distanceTolerance 1
+              axisTolerance 3.141592653589793
+              rotationTolerance 3.141592653589793
+              numberOfRotations 0
+              snap FALSE
+            }
+          ]
+          boundingObject USE S1
+          physics DEF S_PHYSICS Physics {
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          anchor 0 -0.05 0
+        }
+        device [
+          RotationalMotor {
+            name "M2"
+          }
+        ]
+        endPoint DEF SPHERE2 Solid {
+          translation 0 -0.05034385278663667 -0.00015123474696968406
+          rotation -1 0 0 0.0005051759577530935
+          children [
+            Connector {
+              name "s2_connector"
+              model "flippy_stick"
+              boundingObject USE S1
+              physics USE BUMP_PHYSICS
+              translationStep 0.1
+              type "active"
+              autoLock TRUE
+              distanceTolerance 0.3
+              axisTolerance 3.14
+              rotationTolerance 3.14
+              numberOfRotations 0
+              snap FALSE
+            }
+            USE S1
+            TouchSensor {
+              name "T2"
+              boundingObject USE S1
+              physics USE BUMP_PHYSICS
+            }
+          ]
+          name "solid(1)"
+          boundingObject USE S1
+          physics USE S_PHYSICS
+        }
+      }
+    ]
+    boundingObject USE S1
+    physics USE S_PHYSICS
+    controller "flippy_controller"
+  }
+}
