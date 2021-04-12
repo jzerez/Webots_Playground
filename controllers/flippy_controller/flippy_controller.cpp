@@ -19,6 +19,26 @@
 // All the webots classes are defined in the "webots" namespace
 using namespace webots;
 
+void pivot(
+  TouchSensor* curr_moving_sensor,
+  Motor* curr_moving_motor,
+  Motor* curr_stationary_motor,
+  Connector* curr_moving_connector,
+  Connector* curr_stationary_connector
+){
+  // checks to see if the moving node has made contact, and then switches the moving node
+  // NOTE: curr_moving_motor is the one that is spinning. It is NOT translating in space.
+  if (curr_moving_sensor->getValue() == 1) {
+    curr_moving_motor->setVelocity(0.0);
+    if (curr_moving_connector->getPresence() == 1) {
+      curr_moving_connector->lock();
+      curr_stationary_connector->unlock();
+      curr_stationary_motor->setVelocity(1.0);
+    }
+  }
+  
+}
+
 
 // This is the main program of your controller.
 // It creates an instance of your Robot instance, launches its
@@ -39,14 +59,17 @@ int main(int argc, char **argv) {
   // Initialize motors (pointers)
   Motor* m1 = robot->getMotor("M1");
   Motor* m2 = robot->getMotor("M2");
+
   m1->setPosition(INFINITY);
-  m1->setVelocity(-1.0);
-  // m2->setPosition(INFINITY);
-  // m2->set_Velocity(1.0);
+  m1->setVelocity(0.0);
+  m2->setPosition(INFINITY);
+  m2->setVelocity(1.0);
 
   // Initialize touchsensors (pointers)
   TouchSensor* t1 = robot->getTouchSensor("T1");
   TouchSensor* t2 = robot->getTouchSensor("T2");
+
+
 
   // Enable touch sensors. Sets refresh frequency to timeStep
   t1->enable(timeStep);
@@ -63,17 +86,35 @@ int main(int argc, char **argv) {
   s2_joint->enablePresence(10);
 
   // Lock the connections in place
-  s1_joint->lock();
+  // s1_joint->lock();
   s2_joint->lock();
+
+  // which sphere is moving. 0 for none, 1 for sphere1, 2 for sphere2
+  int moving_sphere = 1;
 
 
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
   while (robot->step(timeStep) != -1) {
-      // 1 if it "sees" a nearby valid connector, 0 if not.
-      // It seems like the two connectors need to have similar tolerances. 
-      std::cout << "s2 Joint presence: ";
-      std::cout << s2_joint->getPresence() << std::endl;
+      switch(moving_sphere) {
+        case 0:
+          // robot is not moving
+          std::cout << "stationary" << std::endl;
+          break;
+        case 1:
+          // Sphere1 is moving about sphere2
+          pivot(t1, m2, m1, s1_joint, s2_joint);
+          moving_sphere = 2;
+          break;
+        case 2:
+          // sphere2 is moving about sphere1
+          pivot(t2, m1, m2, s2_joint, s1_joint);
+          moving_sphere = 1;
+          break;
+      }
+
+
+
 
     // read the value of the touch sensor at the second sphere
     // double val = t2->getValue();

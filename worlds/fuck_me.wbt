@@ -36,7 +36,7 @@ DEF real_floor Solid {
       }
       type "passive"
       autoLock TRUE
-      distanceTolerance 1
+      distanceTolerance 10
       axisTolerance 3.14
       rotationTolerance 3.141592653589793
       numberOfRotations 0
@@ -106,7 +106,7 @@ DEF FLIPPY Robot {
             type "active"
             isLocked TRUE
             autoLock TRUE
-            distanceTolerance 0.1
+            distanceTolerance 1
             axisTolerance 3.141592653589793
             rotationTolerance 3.141592653589793
             numberOfRotations 0
@@ -139,7 +139,7 @@ DEF FLIPPY Robot {
             translationStep 0.1
             type "active"
             autoLock TRUE
-            distanceTolerance 1
+            distanceTolerance 0.3
             axisTolerance 3.14
             rotationTolerance 3.14
             numberOfRotations 0

@@ -5,5 +5,5 @@ sceneTreePerspectives: 000000ff0000000100000002000000c0000000fc01000000060100000
 maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
-textFiles: 1 "../../../AppData/Local/Programs/Webots/resources/projects/controllers/void/void.c" "controllers/flippy_controller/flippy_controller.cpp" "plugins/physics/flippy_physics/flippy_physics.cpp" "plugins/physics/flippy_physics/Makefile"
+textFiles: 2 "../../../AppData/Local/Programs/Webots/resources/projects/controllers/void/void.c" "plugins/physics/flippy_physics/Makefile" "controllers/flippy_controller/flippy_controller.cpp"
 consoles: Console:All:All
