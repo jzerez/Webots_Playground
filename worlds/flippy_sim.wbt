@@ -4,12 +4,13 @@ WorldInfo {
     ""
     ""
   ]
+  physics "flippty_physics"
   basicTimeStep 16
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.7033919373636681 0.7101689444883074 0.029997545502076395 1.420162439706337
-  position 0.66825244973256 0.7786116811321944 0.05645058655188406
+  orientation -0.24475077070555115 0.9550504943842449 0.16725912057477738 1.3170777420517479
+  position 1.524500777016182 0.7585511610611887 0.33571499675074845
 }
 Background {
   skyColor [
@@ -50,6 +51,9 @@ DEF FLIPPY Robot {
   translation 0 0.08 0
   rotation 1 0 0 0.4
   children [
+    Emitter {
+      name "EMIT"
+    }
     Solid {
       children [
         DEF BODY Shape {
@@ -103,10 +107,7 @@ DEF FLIPPY Robot {
             model "flippy_stick"
             boundingObject USE S1
             physics USE BUMP_PHYSICS
-            locked TRUE
             type "active"
-            isLocked TRUE
-            autoLock TRUE
             distanceTolerance 10
             axisTolerance 3.141592653589793
             rotationTolerance 3.141592653589793
@@ -151,7 +152,6 @@ DEF FLIPPY Robot {
             physics USE BUMP_PHYSICS
             translationStep 0.1
             type "active"
-            autoLock TRUE
             distanceTolerance 10
             axisTolerance 3.14
             rotationTolerance 3.14
@@ -183,14 +183,11 @@ DEF FLIPPY Robot {
       }
     }
   ]
+  name "FLIPPY1"
   boundingObject USE S1
   physics USE S_PHYSICS
   controller "flippy_controller"
   controllerArgs [
-    "1"
+    "0"
   ]
-}
-flippy {
-  translation -0.357382 0.0302587 -0.0281871
-  rotation -0.47859391923824013 -0.6237158947491991 0.6180018957134249 -2.2559853071795866
 }

@@ -11,6 +11,7 @@
 #include <webots/Device.hpp>
 #include <webots/Receiver.hpp>
 #include <webots/Connector.hpp>
+#include <webots/Emitter.hpp>
 
 // Include standard C++ libraries
 #include <string>
@@ -68,10 +69,14 @@ bool pivot(
 // "controllerArgs" field of the Robot node
 int main(int argc, const char *argv[]) {
 
-  std::cout << "INITIALIZING CONTROLLER" << std::endl;
+  
   // create the Robot instance.
   Robot* robot = new Robot();
+  const std::string robot_name = robot->getName();
+  std::cout << "INITIALIZING CONTROLLER FOR:" + robot_name << std::endl;
 
+  
+  
   // get the time step of the current world (in milliseconds)
   int timeStep = (int)robot->getBasicTimeStep();
 
@@ -92,6 +97,9 @@ int main(int argc, const char *argv[]) {
   // Enable touch sensors. Sets refresh frequency to timeStep
   t1->enable(timeStep);
   t2->enable(timeStep);
+  
+  // Initialize Emitter (for communication with Physics node)
+  Emitter* emit1 = robot->getEmitter("EMIT");
 
   // Initialize connectors (pointers)
   // NOTE: we don't need to Initialize the floor joint because it is passive
@@ -109,20 +117,20 @@ int main(int argc, const char *argv[]) {
 
   // Lock the connections in place (no relative movement)
   // s1_joint->lock();
-  s2_joint->lock();
+  // s2_joint->lock();
 
   // Which sphere is moving. 0 for none, 1 for sphere1, 2 for sphere2
   int moving_sphere;
-=
+
   // The first argument in controllerArgs specifies which sphere is moving
   if (strcmp(argv[1], "0") == 0) {
     moving_sphere = 0;
     m1->setPosition(INFINITY);
-    m1->setVelocity(0.0);
+    m1->setVelocity(1.0);
     m2->setPosition(INFINITY);
-    m2->setVelocity(0.0);
-    s1_joint->lock();
-    s2_joint->lock();
+    m2->setVelocity(1.0);
+    // s1_joint->lock();
+    // s2_joint->lock();
     std::cout << "STATE IS: 0. NO MOVEMENT" << std::endl;
   } else if (strcmp(argv[1], "1") == 0) {
     moving_sphere = 1;
@@ -143,6 +151,10 @@ int main(int argc, const char *argv[]) {
       case 0:
         // robot is not moving
         // std::cout << "stationary" << std::endl;
+        // std::string msg= robot_name.append(3, ",0");
+        emit1->send(robot_name.c_str(), robot_name.length());
+        emit1->send(",0", strlen(",0"));
+        
         break;
       case 1:
         // Sphere1 is moving about sphere2
