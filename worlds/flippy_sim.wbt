@@ -9,7 +9,7 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.5891834562389339 0.791085161348425 0.16446009360535038 0.9410000667030044
+  orientation -0.5893096821057675 0.790869591802078 0.16504359223918247 0.9427253467055408
   position 0.6635361447578698 0.7590602063775108 0.6485891290049746
 }
 Background {
@@ -79,7 +79,7 @@ DEF FLIPPY Robot {
           name "M1"
         }
       ]
-      endPoint DEF F0_S1 Solid {
+      endPoint DEF _ Solid {
         translation 0 0.04991302955174124 3.701909857734546e-05
         rotation -1 0 0 0.0005667977202639379
         children [
@@ -114,9 +114,9 @@ DEF FLIPPY Robot {
           name "M2"
         }
       ]
-      endPoint DEF F0_S2 Solid {
-        translation 0 -0.05034385278663667 -0.00015123474696968406
-        rotation -1 0 0 0.0005051759577530935
+      endPoint DEF F000_S2 Solid {
+        translation 0 -0.05034385278663667 -0.00015123474696967983
+        rotation -1 0 0 0.0005051759181945691
         children [
           USE S1
           TouchSensor {
@@ -137,7 +137,7 @@ DEF FLIPPY Robot {
       name "E1"
     }
   ]
-  name "F0"
+  name "F000"
   boundingObject USE S1
   physics USE S_PHYSICS
   controller "flippy_controller"

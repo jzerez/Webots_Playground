@@ -9,6 +9,7 @@
 #include <ode/ode.h>
 #include <plugins/physics.h>
 #include <iostream>
+#include <unordered_set>
 
 static pthread_mutex_t mutex; // needed to run with multi-threaded version of ODE
 
@@ -23,8 +24,8 @@ static dBodyID robot_body {};
 static dBodyID floor_body {};
 static dBodyID sphere1_body {};
 static dBodyID sphere2_body {};
+std::unordered_set<dJointID> joints {};
 
-static dWorldID world {};
 
 
 /*
@@ -43,21 +44,26 @@ void remove_joints(const char* body_def) {
   int num_joints = dBodyGetNumJoints(body);
   for (int i = 0; i < num_joints; i++) {
     dJointID joint = dBodyGetJoint(body, i);
-    dJointDisable(joint);
+    // dJointDisable(joint);
+    if (joints.find(joint) != joints.end()) {
+      joints.erase(joint);
+      dJointDisable(joint);
+    }
+  
   }
 }
 
-void add_fixed_joint(dGeomID g1, dGeomID g2) {
-  dBodyID body1 = dGeomGetBody(g1);
-  dBodyID body2 = dGeomGetBody(g2);
+// void add_fixed_joint(dGeomID g1, dGeomID g2) {
+  // dBodyID body1 = dGeomGetBody(g1);
+  // dBodyID body2 = dGeomGetBody(g2);
   
-  pthread_mutex_lock(&mutex);
-  dJointID joint = dJointCreateFixed(world, 0);
-  dJointAttach(joint, body1, body2);
-  dJointSetFixed(joint);
-  pthread_mutex_unlock(&mutex);
+  // pthread_mutex_lock(&mutex);
+  // dJointID joint = dJointCreateFixed(world, 0);
+  // dJointAttach(joint, body1, body2);
+  // dJointSetFixed(joint);
+  // pthread_mutex_unlock(&mutex);
   
-}
+// }
 
 void webots_physics_init() {
   pthread_mutex_init(&mutex, NULL);
@@ -85,20 +91,22 @@ void webots_physics_init() {
    
    robot_body = dWebotsGetBodyFromDEF("FLIPPY");
    floor_body = dWebotsGetBodyFromDEF("FLOOR");
-   sphere1_body = dWebotsGetBodyFromDEF("SPHERE1");
-   sphere2_body = dWebotsGetBodyFromDEF("SPHERE2");
+   sphere1_body = dWebotsGetBodyFromDEF("F000_S1");
+   sphere2_body = dWebotsGetBodyFromDEF("F000_S2");
    
    
-   world = dBodyGetWorld(robot_body);
-   
+   dWorldID world = dBodyGetWorld(robot_body);
+   dWebotsConsolePrintf(std::to_string(dBodyGetNumJoints(sphere2_body)).c_str());
    dWebotsConsolePrintf("creating joint....");
    pthread_mutex_lock(&mutex);
    // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
    dJointID joint = dJointCreateFixed(world, 0);
    dJointAttach(joint, sphere2_body, floor_body);
    dJointSetFixed(joint);
+   joints.insert(joint);
    // dWebotsSend(0, joint, sizeof(joint));
    pthread_mutex_unlock(&mutex);
+   dWebotsConsolePrintf(std::to_string(dBodyGetNumJoints(sphere2_body)).c_str());
 
 
 
@@ -111,28 +119,42 @@ void webots_physics_step() {
    *   ...
    */
    // dWebotsConsolePrintf("PLEASE");
-   // pthread_mutex_lock(&mutex);
-   // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
-   // dJointID joint = dJointCreateFixed(world, 0);
-   // dJointAttach(joint, sphere2_body, floor_body);
-   // dWebotsConsolePrintf("please");
-   // pthread_mutex_unlock(&mutex);
-   // dWebotsSend(0, joint, sizeof(joint));
+
   int dataSize;
   const char* data = (const char*)dWebotsReceive(&dataSize);
   if (dataSize > 0) {
-   
-    dWebotsConsolePrintf("REMOVING JOINTS FROM: ");
-
-    dBodyID body = dWebotsGetBodyFromDEF(data);
-    int num_joints = dBodyGetNumJoints(body);
-    dWebotsConsolePrintf(std::to_string(num_joints).c_str());
-    for (int i = 0; i < num_joints; i++) {
-      dJointID joint = dBodyGetJoint(body, i);
-      if (dJointIsEnabled(joint) == 1) {
-        dJointDisable(joint);
+    
+    char *msg = new char[dataSize];
+    int count = 1, i = 0, j = 0;
+    for ( ; i < dataSize; ++i) {
+      char c = data[i];
+      if (c == '\0') {
+        msg[j] = c;
+        if (count == 1) {
+          remove_joints(msg);
+        } else {
+          // add_fixed_joint(dWebotsGetGeomFromDEF(msg), floor_geom);
+          // dBodyID body1 = dWebotsGetBodyFromDEF(msg);
+          // dBodyID body2 = dWebotsGetBodyFromDEF("FLOOR");
+          dWebotsConsolePrintf("ADDING JOINT: ");
+          // dWebotsConsolePrintf(msg);
+          // dWorldID nWorld = dBodyGetWorld(body1);
+          // pthread_mutex_lock(&mutex);
+          // dJointID joint = dJointCreateFixed(nWorld, 0);
+          // dJointAttach(joint, body1, body2);
+          // dJointSetFixed(joint);
+          // pthread_mutex_unlock(&mutex);
+          
+        }
+        ++count;
+        j = 0;
+      } else {
+        msg[j] = c;
+        ++j;
       }
     }
+    // remove_joints(data);
+
   }
    
    

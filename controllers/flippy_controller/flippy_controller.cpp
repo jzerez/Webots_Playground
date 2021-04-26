@@ -106,7 +106,11 @@ int main(int argc, const char *argv[]) {
 
         // IF the robot registers a touch through the touch sensor, pivot
         if (t1->getValue() == 1) {
+          m2->setVelocity(0.0);
           e1->send(s2_name.c_str(), sizeof(s2_name.c_str()));
+          e1->send(s1_name.c_str(), sizeof(s1_name.c_str()));
+          m1->setVelocity(VELOCITY);
+          moving_sphere = 2;
         }
         break;
       case 2:
