@@ -116,7 +116,13 @@ int main(int argc, const char *argv[]) {
       case 2:
         // sphere2 is moving about sphere1
         // If the robot registers a touch through the touch sensor, pivot
-        
+        if (t2->getValue() == 1) {
+          m1->setVelocity(0.0);
+          e1->send(s1_name.c_str(), sizeof(s1_name.c_str()));
+          e1->send(s2_name.c_str(), sizeof(s2_name.c_str()));
+          m2->setVelocity(VELOCITY);
+          moving_sphere = 1;
+        }
         break;
     }
     // read the value of the touch sensor at the second sphere
