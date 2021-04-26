@@ -71,24 +71,31 @@ void webots_physics_init() {
   floor_body = dWebotsGetBodyFromDEF("FLOOR");
   sphere1_body = dWebotsGetBodyFromDEF("F000_S1");
   sphere2_body = dWebotsGetBodyFromDEF("F000_S2");
+  
+  dBodyID sphere1_body1 = dWebotsGetBodyFromDEF("F001_S1");
+  dBodyID sphere2_body1 = dWebotsGetBodyFromDEF("F001_S2");
 
 
   dWorldID world = dBodyGetWorld(robot_body);
 
   // Create initial joint
   // TODO: create joint according to robot state only.
-  dWebotsConsolePrintf("creating joint....");
+  dWebotsConsolePrintf("creating joints....");
 
 
   pthread_mutex_lock(&mutex);
   // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
   dJointID joint = dJointCreateFixed(world, 0);
+  dJointID joint1 = dJointCreateFixed(world, 0);
   dJointAttach(joint, sphere2_body, floor_body);
+  dJointAttach(joint1, sphere2_body1, floor_body);
   // Fixes the bodies while maintaining their current relative orientations and displacements
   dJointSetFixed(joint);
+  dJointSetFixed(joint1);
   // Add the user-created joint to the set of joints
   // Required because otherwise we'd delete joints between the solid bodies of a single flippy
   joints.insert(joint);
+  joints.insert(joint1);
   pthread_mutex_unlock(&mutex);
 
 }

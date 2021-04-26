@@ -2,6 +2,7 @@ PROTO flippy [
   field SFVec3f    translation  0 0 0
   field SFRotation rotation     0 1 0 0
   field MFString   controllerArgs "0"
+  field MFString   name           "F###"
 ]
 {
   Robot {
@@ -36,7 +37,7 @@ PROTO flippy [
             name "M1"
           }
         ]
-        endPoint DEF SPHERE1 Solid {
+        endPoint DEF F000_S1 Solid {
           translation 0 0.04991302955174124 3.701909857734546e-05
           rotation -1 0 0 0.0005667977202639379
           children [
@@ -56,33 +57,6 @@ PROTO flippy [
               physics DEF BUMP_PHYSICS Physics {
               }
             }
-            DEF sphere_connector Connector {
-              name "s1_connector"
-              model "flippy_stick"
-              boundingObject USE S1
-              physics USE BUMP_PHYSICS
-              locked TRUE
-              type "active"
-              isLocked TRUE
-              autoLock TRUE
-              distanceTolerance 10
-              axisTolerance 3.141592653589793
-              rotationTolerance 3.141592653589793
-              numberOfRotations 0
-              snap FALSE
-            }
-            Connector {
-              name "s1_sym_connector"
-              model "inter_flippy"
-              boundingObject USE S1
-              physics USE BUMP_PHYSICS
-              autoLock TRUE
-              distanceTolerance 0.05
-              axisTolerance 3.14
-              rotationTolerance 3.14
-              numberOfRotations 0
-              snap FALSE
-            }
           ]
           boundingObject USE S1
           physics DEF S_PHYSICS Physics {
@@ -98,41 +72,15 @@ PROTO flippy [
             name "M2"
           }
         ]
-        endPoint DEF SPHERE2 Solid {
-          translation 0 -0.05034385278663667 -0.00015123474696968406
-          rotation -1 0 0 0.0005051759577530935
+        endPoint DEF F000_S2 Solid {
+          translation 0 -0.05034385278663667 -0.00015123474696967983
+          rotation -1 0 0 0.0005051759181945691
           children [
-            Connector {
-              name "s2_connector"
-              model "flippy_stick"
-              boundingObject USE S1
-              physics USE BUMP_PHYSICS
-              translationStep 0.1
-              type "active"
-              autoLock TRUE
-              distanceTolerance 10
-              axisTolerance 3.14
-              rotationTolerance 3.14
-              numberOfRotations 0
-              snap FALSE
-            }
             USE S1
             TouchSensor {
               name "T2"
               boundingObject USE S1
               physics USE BUMP_PHYSICS
-            }
-            Connector {
-              name "s2_sym_connector"
-              model "inter_flippy"
-              boundingObject USE S1
-              physics USE BUMP_PHYSICS
-              autoLock TRUE
-              distanceTolerance 0.05
-              axisTolerance 3.14
-              rotationTolerance 3.14
-              numberOfRotations 0
-              snap FALSE
             }
           ]
           name "solid(1)"
@@ -140,7 +88,14 @@ PROTO flippy [
           physics USE S_PHYSICS
         }
       }
+      Receiver {
+        name "R1"
+      }
+      Emitter {
+        name "E1"
+      }
     ]
+    name is name
     boundingObject USE S1
     physics USE S_PHYSICS
     controller "flippy_controller"
