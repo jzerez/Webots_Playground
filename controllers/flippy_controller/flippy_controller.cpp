@@ -10,7 +10,9 @@
 #include <webots/Motor.hpp>
 #include <webots/Device.hpp>
 #include <webots/Receiver.hpp>
+#include <webots/Emitter.hpp>
 #include <webots/Connector.hpp>
+
 
 // Include standard C++ libraries
 #include <string>
@@ -21,42 +23,6 @@
 using namespace webots;
 
 const float VELOCITY = 1.0;
-bool pivot(
-  TouchSensor* curr_moving_sensor,
-  Motor* curr_moving_motor,
-  Motor* curr_stationary_motor,
-  Connector* curr_moving_connector,
-  Connector* curr_stationary_connector,
-  Connector* curr_moving_sym_connector,
-  Connector* curr_stationary_sym_connector,
-  std::string debug = "None"
-){
-  // checks to see if the moving node has made contact, and then switches the moving node
-  // NOTE: curr_moving_motor is the one that is spinning. It is NOT translating in space.
-  if (curr_moving_sensor->getValue() == 1) {
-    std::cout << debug << std::endl;
-    curr_moving_motor->setVelocity(0.0);
-    if (curr_moving_sym_connector->getPresence() == 1){
-      curr_stationary_connector->unlock();
-      curr_stationary_sym_connector->unlock();
-      curr_moving_sym_connector->lock();
-      curr_stationary_motor->setVelocity(VELOCITY);
-      std::cout << "HIT OTHER FLIPPY" << std::endl;
-      return true;
-    } else if (curr_moving_connector->getPresence() == 1) {
-      curr_stationary_connector->unlock();
-      curr_stationary_sym_connector->unlock();
-      curr_moving_connector->lock();
-      curr_stationary_motor->setVelocity(VELOCITY);
-      std::cout << "HIT FLOOR" << std::endl;
-      return true;
-    } else {
-      std::cout << "NO JOINT FOUND" << std::endl;
-    }
-  }
-  return false;
-
-}
 
 // This is the main program of your controller.
 // It creates an instance of the Robot instance, launches its
@@ -71,6 +37,10 @@ int main(int argc, const char *argv[]) {
   std::cout << "INITIALIZING CONTROLLER" << std::endl;
   // create the Robot instance.
   Robot* robot = new Robot();
+
+  std::string s1_name = robot->getName().append("_S1");
+  std::string s2_name = robot->getName().append("_S2");
+  
 
   // get the time step of the current world (in milliseconds)
   int timeStep = (int)robot->getBasicTimeStep();
@@ -93,24 +63,11 @@ int main(int argc, const char *argv[]) {
   t1->enable(timeStep);
   t2->enable(timeStep);
 
-  // Initialize connectors (pointers)
-  // NOTE: we don't need to Initialize the floor joint because it is passive
-  // TODO: see if a symetric connector will work without being defined in cpp
-  Connector* s1_joint = robot->getConnector("s1_connector");
-  Connector* s2_joint = robot->getConnector("s2_connector");
-  Connector* s1_sym_joint = robot->getConnector("s1_sym_connector");
-  Connector* s2_sym_joint = robot->getConnector("s2_sym_connector");
-
-  // Set the query frequency in ms
-  s1_joint->enablePresence(timeStep);
-  s2_joint->enablePresence(timeStep);
-  s1_sym_joint->enablePresence(timeStep);
-  s2_sym_joint->enablePresence(timeStep);
-
-  // Lock the connections in place (no relative movement)
-  // s1_joint->lock();
-  s2_joint->lock();
-
+  Receiver* r1 = robot->getReceiver("R1");
+  r1->enable(timeStep);
+  
+  Emitter* e1 = robot->getEmitter("E1");
+  
   // Which sphere is moving. 0 for none, 1 for sphere1, 2 for sphere2
   int moving_sphere;
 
@@ -121,8 +78,7 @@ int main(int argc, const char *argv[]) {
     m1->setVelocity(1.0);
     m2->setPosition(INFINITY);
     m2->setVelocity(1.0);
-    s1_joint->unlock();
-    s2_joint->unlock();
+
     std::cout << "STATE IS: 0. NO MOVEMENT" << std::endl;
   } else if (strcmp(argv[1], "1") == 0) {
     moving_sphere = 1;
@@ -134,7 +90,7 @@ int main(int argc, const char *argv[]) {
     moving_sphere = 1;
     std::cout << "STATE IS: DEFAULT. SPHERE 1 WILL MOVE FIRST" << std::endl;
   }
-
+  moving_sphere = 1;
 
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
@@ -142,22 +98,21 @@ int main(int argc, const char *argv[]) {
     switch(moving_sphere) {
       case 0:
         // robot is not moving
-        // std::cout << "stationary" << std::endl;
+        std::cout << moving_sphere << t1->getValue() << t2->getValue() << std::endl;
+        
         break;
       case 1:
         // Sphere1 is moving about sphere2
 
         // IF the robot registers a touch through the touch sensor, pivot
-        if (pivot(t1, m2, m1, s1_joint, s2_joint, s1_sym_joint, s2_sym_joint, "SPHERE1 MOVING")) {
-          moving_sphere = 2;
+        if (t1->getValue() == 1) {
+          e1->send(s2_name.c_str(), sizeof(s2_name.c_str()));
         }
         break;
       case 2:
         // sphere2 is moving about sphere1
         // If the robot registers a touch through the touch sensor, pivot
-        if (pivot(t2, m1, m2, s2_joint, s1_joint,  s2_sym_joint, s1_sym_joint, "SPHERE2 MOVING")) {
-          moving_sphere = 1;
-        }
+        
         break;
     }
     // read the value of the touch sensor at the second sphere
@@ -166,7 +121,11 @@ int main(int argc, const char *argv[]) {
 
     // sample code for recieving messages from the physics plug-in (not working)
     // std::cout<< "new message recieved" << std::endl;
-    // std::cout<<wb_receiver_get_data(r1)<<std::endl;
+    if (r1->getQueueLength() > 0) {
+      std::cout<<r1->getData()<<std::endl;
+      r1->nextPacket();
+    }
+    
 
   };
 

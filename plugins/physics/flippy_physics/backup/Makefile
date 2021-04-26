@@ -64,7 +64,8 @@
 ### VERBOSE = 1
 ###
 ###-----------------------------------------------------------------------------
-
+# VERBOSE = 1
+# CFLAGS=-g;
 ### Do not modify: this includes Webots global Makefile.include
 null :=
 space := $(null) $(null)

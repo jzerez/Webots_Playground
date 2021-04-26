@@ -26,8 +26,6 @@ static dBodyID sphere2_body {};
 
 static dWorldID world {};
 
-static states state;
-
 
 /*
  * Note: This plugin will become operational only after it was compiled and associated with the current world (.wbt).
@@ -38,6 +36,28 @@ static states state;
  *  4. Then save the .wbt by hitting the "Save" button in the toolbar of the 3D view
  *  5. Then reload the world: the plugin should now load and execute with the current simulation
  */
+ 
+ 
+void remove_joints(const char* body_def) {
+  dBodyID body = dWebotsGetBodyFromDEF(body_def);
+  int num_joints = dBodyGetNumJoints(body);
+  for (int i = 0; i < num_joints; i++) {
+    dJointID joint = dBodyGetJoint(body, i);
+    dJointDisable(joint);
+  }
+}
+
+void add_fixed_joint(dGeomID g1, dGeomID g2) {
+  dBodyID body1 = dGeomGetBody(g1);
+  dBodyID body2 = dGeomGetBody(g2);
+  
+  pthread_mutex_lock(&mutex);
+  dJointID joint = dJointCreateFixed(world, 0);
+  dJointAttach(joint, body1, body2);
+  dJointSetFixed(joint);
+  pthread_mutex_unlock(&mutex);
+  
+}
 
 void webots_physics_init() {
   pthread_mutex_init(&mutex, NULL);
@@ -69,16 +89,17 @@ void webots_physics_init() {
    sphere2_body = dWebotsGetBodyFromDEF("SPHERE2");
    
    
-   
    world = dBodyGetWorld(robot_body);
    
    dWebotsConsolePrintf("creating joint....");
    pthread_mutex_lock(&mutex);
    // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
    dJointID joint = dJointCreateFixed(world, 0);
-   dJointAttach(joint, robot_body, floor_body);
+   dJointAttach(joint, sphere2_body, floor_body);
    dJointSetFixed(joint);
+   // dWebotsSend(0, joint, sizeof(joint));
    pthread_mutex_unlock(&mutex);
+
 
 
 }
@@ -96,6 +117,25 @@ void webots_physics_step() {
    // dJointAttach(joint, sphere2_body, floor_body);
    // dWebotsConsolePrintf("please");
    // pthread_mutex_unlock(&mutex);
+   // dWebotsSend(0, joint, sizeof(joint));
+  int dataSize;
+  const char* data = (const char*)dWebotsReceive(&dataSize);
+  if (dataSize > 0) {
+   
+    dWebotsConsolePrintf("REMOVING JOINTS FROM: ");
+
+    dBodyID body = dWebotsGetBodyFromDEF(data);
+    int num_joints = dBodyGetNumJoints(body);
+    dWebotsConsolePrintf(std::to_string(num_joints).c_str());
+    for (int i = 0; i < num_joints; i++) {
+      dJointID joint = dBodyGetJoint(body, i);
+      if (dJointIsEnabled(joint) == 1) {
+        dJointDisable(joint);
+      }
+    }
+  }
+   
+   
 }
 
 int webots_physics_collide(dGeomID g1, dGeomID g2) {
@@ -113,32 +153,14 @@ int webots_physics_collide(dGeomID g1, dGeomID g2) {
    *   pthread_mutex_unlock(&mutex);
    *   ...
    */
-   // dWebotsConsolePrintf("COLLIDE");
-   // dBodyID body1 = dGeomGetBody(g1);
-   // dBodyID body2 = dGeomGetBody(g2);
+   // dBodyID b1 = dGeomGetBody(g1);
+   // dBodyID b2 = dGeomGetBody(g2);
    
-   // dJointGroupID contact_joint_group = dWebotsGetContactJointGroup();
-   // dWorldID = dBodyGetWorld(body1);
-   
-   // pthread_mutex_lock(&mutex);
-   // dJointCreateContact(world, contact_joint_group, &contact[0])
-   // dJointAttach(contact_joint, body1, body2);
-   // pthread_mutex_unlock(&mutex);
-   
-   
-   // dWebotsSend(1, true, sizeof(true));
-   // pthread_mutex_lock(&mutex);
-   // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
-   // dJointID joint = dJointCreateFixed(world, 0);
-   // dJointAttach(joint, g1, g2);
-   // pthread_mutex_unlock(&mutex);
-   
-   // dJointGroupID contact_joint_group = dWebotsGetContactJointGroup();
-   // pthread_mutex_lock(&mutex);
-   // dJointCreateContact(world, contact_joint_group, &contact[i])
-   // dJointAttach(contact_joint, body1, body2);
-   // pthread_mutex_unlock(&mutex);
-   
+  // if ((!dAreGeomsSame(g1, floor_geom) && dBodyGetNumJoints(b1) == 0) || 
+       // (!dAreGeomsSame(g2, floor_geom) && dBodyGetNumJoints(b2) == 0)) {
+    // add_fixed_joint(g1, g2);
+    // return 1;
+  // }
   return 0;
 }
 
