@@ -1,8 +1,8 @@
 /*
- * File:
- * Date:
- * Description:
- * Author:
+ * File: flippy_physics.cpp
+ * Date: Spring, 2021
+ * Description: Custom Physics plugin for flippy. Handles crawling over terrain
+ * Author: Jonathan Zerez
  * Modifications:
  */
 
@@ -14,11 +14,6 @@
 static pthread_mutex_t mutex; // needed to run with multi-threaded version of ODE
 
 typedef enum {STATIONARY_1, STATIONARY_2} states;
-
-static dGeomID robot_geom {};
-static dGeomID floor_geom {};
-static dGeomID sphere1_geom {};
-static dGeomID sphere2_geom {};
 
 static dBodyID robot_body {};
 static dBodyID floor_body {};
@@ -37,78 +32,64 @@ std::unordered_set<dJointID> joints {};
  *  4. Then save the .wbt by hitting the "Save" button in the toolbar of the 3D view
  *  5. Then reload the world: the plugin should now load and execute with the current simulation
  */
- 
- 
+
+
+// Removes all user-created joints from a specified body DEF
 void remove_joints(const char* body_def) {
   dBodyID body = dWebotsGetBodyFromDEF(body_def);
   int num_joints = dBodyGetNumJoints(body);
   for (int i = 0; i < num_joints; i++) {
     dJointID joint = dBodyGetJoint(body, i);
-    // dJointDisable(joint);
+    // Only user-created joints will be in the joints set
     if (joints.find(joint) != joints.end()) {
       joints.erase(joint);
       dJointDisable(joint);
     }
-  
+
   }
 }
 
-// void add_fixed_joint(dGeomID g1, dGeomID g2) {
-  // dBodyID body1 = dGeomGetBody(g1);
-  // dBodyID body2 = dGeomGetBody(g2);
-  
-  // pthread_mutex_lock(&mutex);
-  // dJointID joint = dJointCreateFixed(world, 0);
-  // dJointAttach(joint, body1, body2);
-  // dJointSetFixed(joint);
-  // pthread_mutex_unlock(&mutex);
-  
-// }
+// Creates a fixed joints between two specified bodies
+void add_fixed_joint(dBodyID b1, dBodyID b2) {
+  dWorldID joint_world = dBodyGetWorld(b1);
+  pthread_mutex_lock(&mutex);
+  dJointID joint = dJointCreateFixed(joint_world, 0);
+  dJointAttach(joint, b1, b2);
+  dJointSetFixed(joint);
+  joints.insert(joint);
+  pthread_mutex_unlock(&mutex);
+}
 
 void webots_physics_init() {
   pthread_mutex_init(&mutex, NULL);
-  /*
-   * Get ODE object from the .wbt model, e.g.
-   *   dBodyID body1 = dWebotsGetBodyFromDEF("MY_ROBOT");
-   *   dBodyID body2 = dWebotsGetBodyFromDEF("MY_SOLID");
-   *   dGeomID geom2 = dWebotsGetGeomFromDEF("MY_SOLID");
-   * If an object is not found in the .wbt world, the function returns NULL.
-   * Your code should correcly handle the NULL cases because otherwise a segmentation fault will crash Webots.
-   *
-   * This function is also often used to add joints to the simulation, e.g.
-   *   dWorldID world = dBodyGetWorld(body1);
-   *   pthread_mutex_lock(&mutex);
-   *   dJointID joint = dJointCreateBall(world, 0);
-   *   dJointAttach(joint, body1, body2);
-   *   pthread_mutex_unlock(&mutex);
-   *   ...
-   */
-   dWebotsConsolePrintf("INITIALIZING PHYSICS...");
-   robot_geom = dWebotsGetGeomFromDEF("FLIPPY");
-   floor_geom = dWebotsGetGeomFromDEF("FLOOR");
-   sphere1_geom = dWebotsGetGeomFromDEF("SPHERE1");
-   sphere2_geom = dWebotsGetGeomFromDEF("SPHERE2");
-   
-   robot_body = dWebotsGetBodyFromDEF("FLIPPY");
-   floor_body = dWebotsGetBodyFromDEF("FLOOR");
-   sphere1_body = dWebotsGetBodyFromDEF("F000_S1");
-   sphere2_body = dWebotsGetBodyFromDEF("F000_S2");
-   
-   
-   dWorldID world = dBodyGetWorld(robot_body);
-   dWebotsConsolePrintf(std::to_string(dBodyGetNumJoints(sphere2_body)).c_str());
-   dWebotsConsolePrintf("creating joint....");
-   pthread_mutex_lock(&mutex);
-   // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
-   dJointID joint = dJointCreateFixed(world, 0);
-   dJointAttach(joint, sphere2_body, floor_body);
-   dJointSetFixed(joint);
-   joints.insert(joint);
-   // dWebotsSend(0, joint, sizeof(joint));
-   pthread_mutex_unlock(&mutex);
-   dWebotsConsolePrintf(std::to_string(dBodyGetNumJoints(sphere2_body)).c_str());
+
+  dWebotsConsolePrintf("INITIALIZING PHYSICS...");
+
+  // Initialize Simulation Bodies
+  // TODO: Need to initialize bodies in a for loop when it comes to multi-agents
+  robot_body = dWebotsGetBodyFromDEF("FLIPPY");
+  floor_body = dWebotsGetBodyFromDEF("FLOOR");
+  sphere1_body = dWebotsGetBodyFromDEF("F000_S1");
+  sphere2_body = dWebotsGetBodyFromDEF("F000_S2");
 
 
+  dWorldID world = dBodyGetWorld(robot_body);
+
+  // Create initial joint
+  // TODO: create joint according to robot state only.
+  dWebotsConsolePrintf("creating joint....");
+
+
+  pthread_mutex_lock(&mutex);
+  // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
+  dJointID joint = dJointCreateFixed(world, 0);
+  dJointAttach(joint, sphere2_body, floor_body);
+  // Fixes the bodies while maintaining their current relative orientations and displacements
+  dJointSetFixed(joint);
+  // Add the user-created joint to the set of joints
+  // Required because otherwise we'd delete joints between the solid bodies of a single flippy
+  joints.insert(joint);
+  pthread_mutex_unlock(&mutex);
 
 }
 
@@ -118,12 +99,12 @@ void webots_physics_step() {
    *   dBodyAddForce(body1, f[0], f[1], f[2]);
    *   ...
    */
-   // dWebotsConsolePrintf("PLEASE");
 
+  // Read data incomming from the controller
   int dataSize;
   const char* data = (const char*)dWebotsReceive(&dataSize);
   if (dataSize > 0) {
-    
+    // This code parses the messages in the packet
     char *msg = new char[dataSize];
     int count = 1, i = 0, j = 0;
     for ( ; i < dataSize; ++i) {
@@ -131,21 +112,19 @@ void webots_physics_step() {
       if (c == '\0') {
         msg[j] = c;
         if (count == 1) {
+          // This is the first message in the package.
+          // Specifies the body (by DEF) to unfix
+          dWebotsConsolePrintf("REMOVING JOINTS FROM: ");
+          dWebotsConsolePrintf(msg);
           remove_joints(msg);
         } else {
-          
-          dWebotsConsolePrintf("ADDING JOINT: ");
+          // This is the second message in the package.
+          // Specifies the body (by DEF) to fix
+          dWebotsConsolePrintf("ADDING JOINT TO: ");
           dWebotsConsolePrintf(msg);
           dBodyID body1 = dWebotsGetBodyFromDEF(msg);
           dBodyID body2 = dWebotsGetBodyFromDEF("FLOOR");
-          dWorldID nWorld = dBodyGetWorld(body1);
-          pthread_mutex_lock(&mutex);
-          dJointID joint = dJointCreateFixed(nWorld, 0);
-          dJointAttach(joint, body1, body2);
-          dJointSetFixed(joint);
-          joints.insert(joint);
-          pthread_mutex_unlock(&mutex);
-          
+          add_fixed_joint(body1, body2);
         }
         ++count;
         j = 0;
@@ -154,11 +133,10 @@ void webots_physics_step() {
         ++j;
       }
     }
-    // remove_joints(data);
 
   }
-   
-   
+
+
 }
 
 int webots_physics_collide(dGeomID g1, dGeomID g2) {
@@ -178,8 +156,8 @@ int webots_physics_collide(dGeomID g1, dGeomID g2) {
    */
    // dBodyID b1 = dGeomGetBody(g1);
    // dBodyID b2 = dGeomGetBody(g2);
-   
-  // if ((!dAreGeomsSame(g1, floor_geom) && dBodyGetNumJoints(b1) == 0) || 
+
+  // if ((!dAreGeomsSame(g1, floor_geom) && dBodyGetNumJoints(b1) == 0) ||
        // (!dAreGeomsSame(g2, floor_geom) && dBodyGetNumJoints(b2) == 0)) {
     // add_fixed_joint(g1, g2);
     // return 1;
