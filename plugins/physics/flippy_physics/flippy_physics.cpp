@@ -133,17 +133,18 @@ void webots_physics_step() {
         if (count == 1) {
           remove_joints(msg);
         } else {
-          // add_fixed_joint(dWebotsGetGeomFromDEF(msg), floor_geom);
-          // dBodyID body1 = dWebotsGetBodyFromDEF(msg);
-          // dBodyID body2 = dWebotsGetBodyFromDEF("FLOOR");
+          
           dWebotsConsolePrintf("ADDING JOINT: ");
-          // dWebotsConsolePrintf(msg);
-          // dWorldID nWorld = dBodyGetWorld(body1);
-          // pthread_mutex_lock(&mutex);
-          // dJointID joint = dJointCreateFixed(nWorld, 0);
-          // dJointAttach(joint, body1, body2);
-          // dJointSetFixed(joint);
-          // pthread_mutex_unlock(&mutex);
+          dWebotsConsolePrintf(msg);
+          dBodyID body1 = dWebotsGetBodyFromDEF(msg);
+          dBodyID body2 = dWebotsGetBodyFromDEF("FLOOR");
+          dWorldID nWorld = dBodyGetWorld(body1);
+          pthread_mutex_lock(&mutex);
+          dJointID joint = dJointCreateFixed(nWorld, 0);
+          dJointAttach(joint, body1, body2);
+          dJointSetFixed(joint);
+          joints.insert(joint);
+          pthread_mutex_unlock(&mutex);
           
         }
         ++count;
