@@ -113,16 +113,16 @@ int main(int argc, const char *argv[]) {
 
   // Which sphere is moving. 0 for none, 1 for sphere1, 2 for sphere2
   int moving_sphere;
-=
+
   // The first argument in controllerArgs specifies which sphere is moving
   if (strcmp(argv[1], "0") == 0) {
     moving_sphere = 0;
     m1->setPosition(INFINITY);
-    m1->setVelocity(0.0);
+    m1->setVelocity(1.0);
     m2->setPosition(INFINITY);
-    m2->setVelocity(0.0);
-    s1_joint->lock();
-    s2_joint->lock();
+    m2->setVelocity(1.0);
+    s1_joint->unlock();
+    s2_joint->unlock();
     std::cout << "STATE IS: 0. NO MOVEMENT" << std::endl;
   } else if (strcmp(argv[1], "1") == 0) {
     moving_sphere = 1;

@@ -68,13 +68,16 @@ void webots_physics_init() {
    sphere1_body = dWebotsGetBodyFromDEF("SPHERE1");
    sphere2_body = dWebotsGetBodyFromDEF("SPHERE2");
    
+   
+   
    world = dBodyGetWorld(robot_body);
    
    dWebotsConsolePrintf("creating joint....");
    pthread_mutex_lock(&mutex);
    // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
    dJointID joint = dJointCreateFixed(world, 0);
-   dJointAttach(joint, sphere2_body, floor_body);
+   dJointAttach(joint, robot_body, floor_body);
+   dJointSetFixed(joint);
    pthread_mutex_unlock(&mutex);
 
 
@@ -110,20 +113,20 @@ int webots_physics_collide(dGeomID g1, dGeomID g2) {
    *   pthread_mutex_unlock(&mutex);
    *   ...
    */
-   dWebotsConsolePrintf("COLLIDE");
-   dBodyID body1 = dGeomGetBody(g1);
-   dBodyID body2 = dGeomGetBody(g2);
+   // dWebotsConsolePrintf("COLLIDE");
+   // dBodyID body1 = dGeomGetBody(g1);
+   // dBodyID body2 = dGeomGetBody(g2);
    
-   dJointGroupID contact_joint_group = dWebotsGetContactJointGroup();
-   dWorldID = dBodyGetWorld(body1);
+   // dJointGroupID contact_joint_group = dWebotsGetContactJointGroup();
+   // dWorldID = dBodyGetWorld(body1);
    
-   pthread_mutex_lock(&mutex);
-   dJointCreateContact(world, contact_joint_group, &contact[0])
-   dJointAttach(contact_joint, body1, body2);
-   pthread_mutex_unlock(&mutex);
+   // pthread_mutex_lock(&mutex);
+   // dJointCreateContact(world, contact_joint_group, &contact[0])
+   // dJointAttach(contact_joint, body1, body2);
+   // pthread_mutex_unlock(&mutex);
    
    
-   dWebotsSend(1, true, sizeof(true));
+   // dWebotsSend(1, true, sizeof(true));
    // pthread_mutex_lock(&mutex);
    // Creates a fixed joint belonging to the world ID, with the default joint group ID (0)
    // dJointID joint = dJointCreateFixed(world, 0);
