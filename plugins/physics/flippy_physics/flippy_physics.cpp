@@ -67,7 +67,7 @@ void webots_physics_init() {
 
   // Initialize Simulation Bodies
   // TODO: Need to initialize bodies in a for loop when it comes to multi-agents
-  robot_body = dWebotsGetBodyFromDEF("FLIPPY");
+  
   floor_body = dWebotsGetBodyFromDEF("FLOOR");
   sphere1_body = dWebotsGetBodyFromDEF("F000_S1");
   sphere2_body = dWebotsGetBodyFromDEF("F000_S2");
@@ -76,7 +76,7 @@ void webots_physics_init() {
   dBodyID sphere2_body1 = dWebotsGetBodyFromDEF("F001_S2");
 
 
-  dWorldID world = dBodyGetWorld(robot_body);
+  dWorldID world = dBodyGetWorld(sphere1_body1);
 
   // Create initial joint
   // TODO: create joint according to robot state only.

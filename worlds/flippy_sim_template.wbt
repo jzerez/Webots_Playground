@@ -1,0 +1,50 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  title "FLIPPY SIM AUTO"
+  info [
+    ""
+    ""
+  ]
+  physics "flippy_physics"
+  basicTimeStep 16
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.07237226055216188 -0.9615506766747227 -0.26491989749536177 1.6021124575527574
+  position -0.7673065553099321 0.28881503520980834 0.1414097586585502
+}
+Background {
+  skyColor [
+    0.7 0.7 0.7
+    0 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+  ]
+}
+DEF FLOOR RectangleArena {
+}
+DEF real_floor Solid {
+  children [
+    DEF floor_shape Shape {
+      geometry Box {
+        size 1 0.01 1
+      }
+    }
+    DEF floor_connector Connector {
+      name "floor_connector"
+      model "flippy_stick"
+      boundingObject USE floor_shape
+      physics Physics {
+      }
+      type "passive"
+      autoLock TRUE
+      distanceTolerance 10
+      axisTolerance 3.14
+      rotationTolerance 3.141592653589793
+      numberOfRotations 0
+      snap FALSE
+    }
+  ]
+  boundingObject USE floor_shape
+}

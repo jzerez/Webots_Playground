@@ -132,7 +132,7 @@ int main(int argc, const char *argv[]) {
     // sample code for recieving messages from the physics plug-in (not working)
     // std::cout<< "new message recieved" << std::endl;
     if (r1->getQueueLength() > 0) {
-      std::cout<<r1->getData()<<std::endl;
+      // std::cout<<r1->getData()<<std::endl;
       r1->nextPacket();
     }
     
